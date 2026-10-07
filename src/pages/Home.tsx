@@ -25,21 +25,21 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto px-2 md:px-4 py-4 md:py-6">
       {/* Hero banner */}
-      <div className="bg-gradient-to-r from-[#FF6A00] to-[#E55A00] rounded-2xl p-8 md:p-12 mb-8 text-white">
-        <h1 className="text-3xl md:text-5xl font-bold mb-3">
+      <div className="bg-gradient-to-r from-[#FF6A00] to-[#E55A00] rounded-xl md:rounded-2xl p-4 md:p-12 mb-4 md:mb-8 text-white">
+        <h1 className="text-xl md:text-5xl font-bold mb-1 md:mb-3">
           Promo 1
         </h1>
-        <p className="text-lg md:text-xl opacity-90">
+        <p className="text-xs md:text-xl opacity-90">
           -50% sur l'artisanat mandingue
         </p>
       </div>
 
       {/* Titre */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-1 h-6 bg-[#FF6A00] rounded"></div>
-        <h2 className="text-2xl font-bold">Produits vedettes</h2>
+      <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6">
+        <div className="w-1 h-5 md:h-6 bg-[#FF6A00] rounded"></div>
+        <h2 className="text-lg md:text-2xl font-bold">Produits vedettes</h2>
       </div>
 
       {/* Loading */}
@@ -71,7 +71,7 @@ export default function Home() {
 
       {/* Grille produits */}
       {!isLoading && products.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
