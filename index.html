@@ -1,13 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>mande-sugu-web</title>
+    <meta name="theme-color" content="#F97316" />
+    <meta name="description" content="MANDÉ SUGU - Achetez mieux, vivez mieux" />
+    <title>MANDÉ SUGU</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- ============================================ -->
+    <!-- 🔍 DEBUG MOBILE - ERUDA (à retirer plus tard) -->
+    <!-- ============================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>
+      // Active Eruda uniquement sur mobile (pas sur PC)
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+        eruda.init();
+        console.log('🐛 Eruda activé (mode debug mobile)');
+      }
+    </script>
+    <!-- ============================================ -->
   </body>
 </html>
