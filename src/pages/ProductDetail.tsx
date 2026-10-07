@@ -43,7 +43,7 @@ export default function ProductDetail() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // AJOUTER AU PANIER (SYNCHRONISÉ AVEC LE BACKEND)
+  // AJOUTER AU PANIER
   // ═══════════════════════════════════════════════════════════
   async function handleAddToCart() {
     if (!product) return
@@ -69,7 +69,20 @@ export default function ProductDetail() {
   // CONTACTER LE VENDEUR (CRÉE UNE CONVERSATION)
   // ═══════════════════════════════════════════════════════════
   async function handleContactSeller() {
-    if (!product || !product.seller_id) return
+    console.log('👆 Bouton contacté !')
+    console.log('👆 product:', product)
+    console.log('👆 product.seller_id:', product?.seller_id)
+    console.log('👆 isAuthenticated:', isAuthenticated)
+
+    if (!product) {
+      alert('Produit non chargé')
+      return
+    }
+
+    if (!product.seller_id) {
+      alert("Ce produit n'a pas de vendeur associé")
+      return
+    }
 
     if (!isAuthenticated) {
       alert('Connectez-vous pour contacter le vendeur')
@@ -78,16 +91,26 @@ export default function ProductDetail() {
     }
 
     setIsContacting(true)
-    const result = await createConversation({
-      seller_id: product.seller_id,
-      product_id: product.id,
-    })
-    setIsContacting(false)
 
-    if (result.success && result.data) {
-      navigate(`/chat/${result.data.id}`)
-    } else {
-      alert(result.message || 'Erreur lors de la création de la conversation')
+    try {
+      const result = await createConversation({
+        seller_id: product.seller_id,
+        product_id: product.id,
+      })
+
+      console.log('📨 Résultat:', result)
+
+      if (result.success && result.data) {
+        console.log('✅ Navigation vers /chat/' + result.data.id)
+        navigate(`/chat/${result.data.id}`)
+      } else {
+        alert(result.message || 'Erreur lors de la création de la conversation')
+      }
+    } catch (err: any) {
+      console.error('💥 Exception:', err)
+      alert('Erreur : ' + (err.message || 'inconnue'))
+    } finally {
+      setIsContacting(false)
     }
   }
 
@@ -137,7 +160,7 @@ export default function ProductDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-        {/* ═══════════ GALERIE ═══════════ */}
+        {/* GALERIE */}
         <div>
           <div className="bg-white rounded-xl p-3 md:p-4 border">
             <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden">
@@ -155,7 +178,6 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Miniatures */}
           {images.length > 1 && (
             <div className="flex gap-2 mt-3 overflow-x-auto">
               {images.map((img, i) => (
@@ -163,9 +185,7 @@ export default function ProductDetail() {
                   key={i}
                   onClick={() => setSelectedImage(i)}
                   className={`w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition shrink-0 ${
-                    selectedImage === i
-                      ? 'border-[#FF6A00]'
-                      : 'border-gray-200'
+                    selectedImage === i ? 'border-[#FF6A00]' : 'border-gray-200'
                   }`}
                 >
                   <img
@@ -179,13 +199,10 @@ export default function ProductDetail() {
           )}
         </div>
 
-        {/* ═══════════ INFOS ═══════════ */}
+        {/* INFOS */}
         <div>
-          <h1 className="text-xl md:text-2xl font-bold mb-3">
-            {product.name}
-          </h1>
+          <h1 className="text-xl md:text-2xl font-bold mb-3">{product.name}</h1>
 
-          {/* Note */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -205,12 +222,9 @@ export default function ProductDetail() {
               {rating.toFixed(1)} ({product.review_count} avis)
             </span>
             <span className="text-sm text-gray-400">·</span>
-            <span className="text-sm text-gray-600">
-              {product.sales_count} ventes
-            </span>
+            <span className="text-sm text-gray-600">{product.sales_count} ventes</span>
           </div>
 
-          {/* Prix */}
           <div className="bg-orange-50 rounded-xl p-4 mb-4">
             <p className="text-xs text-gray-600 mb-1">Prix</p>
             <div className="flex items-baseline gap-3 flex-wrap">
@@ -225,12 +239,10 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Stock */}
           <p className="text-sm text-gray-600 mb-4">
             Stock : <strong>{product.stock}</strong> disponible(s)
           </p>
 
-          {/* Quantité */}
           <div className="flex items-center gap-4 mb-6">
             <span className="text-sm font-medium">Quantité :</span>
             <div className="flex items-center border rounded-lg">
@@ -250,9 +262,8 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* Boutons */}
+          {/* BOUTONS */}
           <div className="space-y-3">
-            {/* Ajouter au panier */}
             <button
               onClick={handleAddToCart}
               disabled={isAddingToCart}
@@ -265,25 +276,14 @@ export default function ProductDetail() {
                 </>
               ) : (
                 <>
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   Ajouter au panier
                 </>
               )}
             </button>
 
-            {/* Contacter le vendeur */}
             {product.seller_id && (
               <button
                 onClick={handleContactSeller}
@@ -304,88 +304,54 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* ═══════════ DESCRIPTION ═══════════ */}
+      {/* DESCRIPTION */}
       <div className="bg-white rounded-xl p-5 md:p-6 mt-6 md:mt-8">
         <h2 className="text-lg font-bold mb-4">Description</h2>
         <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-          {product.name} — Produit de qualité supérieure. Livraison rapide
-          partout au Mali.
+          {product.name} — Produit de qualité supérieure. Livraison rapide partout au Mali.
         </p>
       </div>
 
-      {/* ═══════════ AVIS ═══════════ */}
+      {/* AVIS */}
       <div className="bg-white rounded-xl p-5 md:p-6 mt-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <svg
-              className="w-5 h-5 text-[#FF6A00]"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-              />
+            <svg className="w-5 h-5 text-[#FF6A00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
             </svg>
             <h2 className="text-lg font-bold">Avis clients</h2>
           </div>
-          <span className="text-sm text-gray-500">
-            {stats?.total || 0} avis
-          </span>
+          <span className="text-sm text-gray-500">{stats?.total || 0} avis</span>
         </div>
 
         {stats && stats.total > 0 && (
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-6 pb-6 border-b">
             <div className="text-center">
-              <div className="text-4xl font-bold text-[#FF6A00]">
-                {stats.average.toFixed(1)}
-              </div>
+              <div className="text-4xl font-bold text-[#FF6A00]">{stats.average.toFixed(1)}</div>
               <div className="flex justify-center gap-0.5 mt-1">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <svg
-                    key={s}
-                    className={`w-3 h-3 ${
-                      s <= stats.average ? 'text-amber-400' : 'text-gray-300'
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                  <svg key={s} className={`w-3 h-3 ${s <= stats.average ? 'text-amber-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 ))}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {stats.total} avis
-              </div>
+              <div className="text-xs text-gray-500 mt-1">{stats.total} avis</div>
             </div>
 
             <div className="flex-1">
               {[5, 4, 3, 2, 1].map((star) => {
                 const count = (stats as any)[`stars${star}`] || 0
-                const ratio =
-                  stats.total > 0 ? (count / stats.total) * 100 : 0
+                const ratio = stats.total > 0 ? (count / stats.total) * 100 : 0
                 return (
                   <div key={star} className="flex items-center gap-2 mb-1">
                     <span className="text-xs w-3">{star}</span>
-                    <svg
-                      className="w-3 h-3 text-amber-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
+                    <svg className="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                     <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-amber-400"
-                        style={{ width: `${ratio}%` }}
-                      ></div>
+                      <div className="h-full bg-amber-400" style={{ width: `${ratio}%` }}></div>
                     </div>
-                    <span className="text-xs text-gray-500 w-6">
-                      {count}
-                    </span>
+                    <span className="text-xs text-gray-500 w-6">{count}</span>
                   </div>
                 )
               })}
@@ -393,7 +359,6 @@ export default function ProductDetail() {
           </div>
         )}
 
-        {/* Liste des avis */}
         {reviews.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <p className="mb-2">Aucun avis pour le moment</p>
@@ -409,9 +374,7 @@ export default function ProductDetail() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm">
-                        {review.user_name}
-                      </span>
+                      <span className="font-semibold text-sm">{review.user_name}</span>
                       {review.is_verified_purchase === 1 && (
                         <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
                           ✓ Achat vérifié
@@ -421,28 +384,15 @@ export default function ProductDetail() {
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <svg
-                            key={s}
-                            className={`w-3 h-3 ${
-                              s <= review.rating
-                                ? 'text-amber-400'
-                                : 'text-gray-300'
-                            }`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
+                          <svg key={s} className={`w-3 h-3 ${s <= review.rating ? 'text-amber-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
                         ))}
                       </div>
-                      <span className="text-xs text-gray-400">
-                        {timeAgo(review.created_at)}
-                      </span>
+                      <span className="text-xs text-gray-400">{timeAgo(review.created_at)}</span>
                     </div>
                     {review.comment && (
-                      <p className="text-sm text-gray-700 mt-2">
-                        {review.comment}
-                      </p>
+                      <p className="text-sm text-gray-700 mt-2">{review.comment}</p>
                     )}
                   </div>
                 </div>
@@ -451,7 +401,6 @@ export default function ProductDetail() {
           </div>
         )}
 
-        {/* Bouton laisser un avis */}
         {isAuthenticated && (
           <div className="mt-6 pt-6 border-t">
             <Link
