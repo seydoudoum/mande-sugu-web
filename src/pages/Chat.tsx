@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getConversations, type Conversation } from '../api/chat'
 import { useAuthStore } from '../stores/authStore'
-import { imageUrl, timeAgo } from '../lib/format'
+import { timeAgo } from '../lib/format'
 
 export default function Chat() {
   const navigate = useNavigate()

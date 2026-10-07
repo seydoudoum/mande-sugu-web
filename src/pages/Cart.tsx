@@ -46,14 +46,13 @@ export default function Cart() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ═══════════ LISTE ARTICLES ═══════════ */}
+        {/* LISTE ARTICLES */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-xl p-4 flex gap-4 border"
             >
-              {/* Image */}
               <Link to={`/product/${item.product_id}`} className="shrink-0">
                 <div className="w-20 h-20 rounded-lg bg-gray-100 overflow-hidden">
                   {item.main_image ? (
@@ -70,7 +69,6 @@ export default function Cart() {
                 </div>
               </Link>
 
-              {/* Infos */}
               <div className="flex-1 min-w-0">
                 <Link
                   to={`/product/${item.product_id}`}
@@ -84,11 +82,10 @@ export default function Cart() {
                   </p>
                 )}
                 <p className="text-lg font-bold text-[#FF6A00] mt-2">
-                  {formatPrice(item.price)}
+                  {formatPrice(Number(item.price))}
                 </p>
               </div>
 
-              {/* Actions */}
               <div className="flex flex-col items-end justify-between">
                 <button
                   onClick={() => removeItem(item.id)}
@@ -117,14 +114,14 @@ export default function Cart() {
                 </div>
 
                 <p className="text-sm font-bold text-gray-700">
-                  {formatPrice(item.price * item.quantity)}
+                  {formatPrice(Number(item.price) * Number(item.quantity))}
                 </p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* ═══════════ RÉCAPITULATIF ═══════════ */}
+        {/* RÉCAPITULATIF */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl p-6 border sticky top-32">
             <h2 className="text-lg font-bold mb-4">Récapitulatif</h2>
@@ -132,7 +129,7 @@ export default function Cart() {
             <div className="space-y-3 mb-4 pb-4 border-b">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Sous-total</span>
-                <span className="font-semibold">{formatPrice(totalPrice)}</span>
+                <span className="font-semibold">{formatPrice(Number(totalPrice))}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Livraison</span>
@@ -143,7 +140,7 @@ export default function Cart() {
             <div className="flex justify-between items-center mb-6">
               <span className="font-bold">Total</span>
               <span className="text-2xl font-bold text-[#FF6A00]">
-                {formatPrice(totalPrice)}
+                {formatPrice(Number(totalPrice))}
               </span>
             </div>
 
