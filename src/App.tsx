@@ -10,6 +10,8 @@ import Register from './pages/Register'
 import Profile from './pages/Profile'
 import Favorites from './pages/Favorites'
 import Orders from './pages/Orders'
+import Chat from './pages/Chat'
+import Conversation from './pages/Conversation'
 import BecomeSeller from './pages/BecomeSeller'
 import SellerDashboard from './pages/seller/SellerDashboard'
 import SellerProducts from './pages/seller/SellerProducts'
@@ -36,6 +38,10 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/orders" element={<Orders />} />
+
+          {/* Chat */}
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/:id" element={<Conversation />} />
 
           {/* Vendeur */}
           <Route path="/seller" element={<SellerDashboard />} />

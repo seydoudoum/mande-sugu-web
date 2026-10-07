@@ -95,6 +95,29 @@ export default function Header() {
               </svg>
             </Link>
 
+            {/* Chat */}
+            {isAuthenticated && (
+              <Link
+                to="/chat"
+                className="text-white hover:bg-white/20 p-1.5 md:p-2 rounded-full transition"
+                title="Messages"
+              >
+                <svg
+                  className="w-4 h-4 md:w-6 md:h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+              </Link>
+            )}
+
             {/* Panier */}
             <Link
               to="/cart"
@@ -172,6 +195,13 @@ export default function Header() {
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         ❤️ Mes favoris
+                      </Link>
+                      <Link
+                        to="/chat"
+                        onClick={() => setShowMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        💬 Mes messages
                       </Link>
                       {(user.role === 'seller' ||
                         user.role === 'admin' ||
