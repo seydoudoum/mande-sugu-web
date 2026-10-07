@@ -6,7 +6,7 @@ import { formatPrice, imageUrl } from '../../lib/format'
 
 export default function SellerProducts() {
   const navigate = useNavigate()
-  const { user, isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()  // ← 'user' retiré
   const [products, setProducts] = useState<SellerProduct[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
