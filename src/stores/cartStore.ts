@@ -1,74 +1,127 @@
 import { create } from 'zustand'
+import {
+  getCart,
+  addToCart,
+  updateCartItem,
+  removeCartItem,
+  clearCart,
+  type CartItem,
+} from '../api/cart'
 
 // ═══════════════════════════════════════════════════════════
-// TYPES
+// HELPERS
 // ═══════════════════════════════════════════════════════════
-export interface CartItem {
-  id: number
-  product_id: number
-  name: string
-  price: number
-  quantity: number
-  main_image?: string
-  seller_name?: string
-}
-
-interface CartState {
-  items: CartItem[]
-  totalItems: number
-  totalPrice: number
-
-  // Actions
-  setItems: (items: CartItem[]) => void
-  addItem: (item: CartItem) => void
-  removeItem: (id: number) => void
-  updateQuantity: (id: number, quantity: number) => void
-  clear: () => void
-  recalculate: () => void
+function computeTotals(items: CartItem[]) {
+  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
+  const totalPrice = items.reduce(
+    (sum, i) => sum + parseFloat(i.price) * i.quantity,
+    0
+  )
+  return { totalItems, totalPrice }
 }
 
 // ═══════════════════════════════════════════════════════════
 // STORE
 // ═══════════════════════════════════════════════════════════
+interface CartState {
+  items: CartItem[]
+  totalItems: number
+  totalPrice: number
+  isLoading: boolean
+
+  loadFromBackend: () => Promise<void>
+  addItem: (productId: number, quantity: number) => Promise<boolean>
+  removeItem: (itemId: number) => Promise<boolean>
+  updateQuantity: (itemId: number, quantity: number) => Promise<boolean>
+  clear: () => Promise<boolean>
+  recalculate: () => void
+}
+
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   totalItems: 0,
   totalPrice: 0,
+  isLoading: false,
 
-  setItems: (items) => {
-    const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
-    const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
-    set({ items, totalItems, totalPrice })
-  },
-
-  addItem: (item) => {
-    const items = [...get().items]
-    const existing = items.find((i) => i.product_id === item.product_id)
-    if (existing) {
-      existing.quantity += item.quantity
-    } else {
-      items.push(item)
+  // ─────────────────────────────────────────────────────────
+  // CHARGER LE PANIER DEPUIS LE BACKEND
+  // ─────────────────────────────────────────────────────────
+  loadFromBackend: async () => {
+    set({ isLoading: true })
+    try {
+      const items = await getCart()
+      const { totalItems, totalPrice } = computeTotals(items)
+      set({ items, totalItems, totalPrice, isLoading: false })
+    } catch {
+      set({ isLoading: false })
     }
-    get().setItems(items)
   },
 
-  removeItem: (id) => {
-    const items = get().items.filter((i) => i.id !== id)
-    get().setItems(items)
+  // ─────────────────────────────────────────────────────────
+  // AJOUTER AU PANIER
+  // ─────────────────────────────────────────────────────────
+  addItem: async (productId, quantity) => {
+    const result = await addToCart({
+      product_id: productId,
+      quantity,
+    })
+
+    if (result.success) {
+      await get().loadFromBackend()
+      return true
+    }
+    return false
   },
 
-  updateQuantity: (id, quantity) => {
-    const items = get().items.map((i) =>
-      i.id === id ? { ...i, quantity } : i
+  // ─────────────────────────────────────────────────────────
+  // SUPPRIMER UN ARTICLE
+  // ─────────────────────────────────────────────────────────
+  removeItem: async (itemId) => {
+    const oldItems = get().items
+    const newItems = oldItems.filter((i) => i.id !== itemId)
+    set({ items: newItems, ...computeTotals(newItems) })
+
+    const result = await removeCartItem(itemId)
+    if (!result.success) {
+      set({ items: oldItems, ...computeTotals(oldItems) })
+      return false
+    }
+    return true
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // MODIFIER LA QUANTITÉ
+  // ─────────────────────────────────────────────────────────
+  updateQuantity: async (itemId, quantity) => {
+    if (quantity < 1) return false
+
+    const oldItems = get().items
+    const newItems = oldItems.map((i) =>
+      i.id === itemId ? { ...i, quantity } : i
     )
-    get().setItems(items)
+    set({ items: newItems, ...computeTotals(newItems) })
+
+    const result = await updateCartItem(itemId, quantity)
+    if (!result.success) {
+      set({ items: oldItems, ...computeTotals(oldItems) })
+      return false
+    }
+    return true
   },
 
-  clear: () => {
+  // ─────────────────────────────────────────────────────────
+  // VIDER LE PANIER
+  // ─────────────────────────────────────────────────────────
+  clear: async () => {
     set({ items: [], totalItems: 0, totalPrice: 0 })
+    const result = await clearCart()
+    return result.success
   },
 
+  // ─────────────────────────────────────────────────────────
+  // RECALCULER
+  // ─────────────────────────────────────────────────────────
   recalculate: () => {
-    get().setItems(get().items)
+    set(computeTotals(get().items))
   },
 }))
