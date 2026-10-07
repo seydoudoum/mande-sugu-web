@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useCartStore } from '../../stores/cartStore'
@@ -5,6 +6,7 @@ import { useCartStore } from '../../stores/cartStore'
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuthStore()
   const { totalItems } = useCartStore()
+  const [showMenu, setShowMenu] = useState(false)
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40">
@@ -121,60 +123,80 @@ export default function Header() {
 
             {/* Compte */}
             {isAuthenticated && user ? (
-              <div className="relative group">
-                <button className="text-white hover:bg-white/20 p-0.5 md:p-1 rounded-full transition">
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="text-white hover:bg-white/20 p-0.5 md:p-1 rounded-full transition"
+                >
                   <div className="w-6 h-6 md:w-9 md:h-9 rounded-full bg-white text-[#FF6A00] flex items-center justify-center font-bold text-xs md:text-base">
                     {user.full_name.charAt(0).toUpperCase()}
                   </div>
                 </button>
 
-                {/* Dropdown */}
-                <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl py-2 w-52 md:w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="px-4 py-2 border-b">
-                    <p className="text-sm font-semibold text-gray-800 truncate">
-                      {user.full_name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </p>
-                  </div>
+                {showMenu && (
+                  <>
+                    {/* Overlay pour fermer au clic extérieur */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowMenu(false)}
+                    ></div>
 
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    👤 Mon profil
-                  </Link>
-                  <Link
-                    to="/orders"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    📦 Mes commandes
-                  </Link>
-                  <Link
-                    to="/favorites"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    ❤️ Mes favoris
-                  </Link>
-                  {(user.role === 'seller' ||
-                    user.role === 'admin' ||
-                    user.role === 'super_admin') && (
-                    <Link
-                      to="/seller"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      🏪 Ma boutique
-                    </Link>
-                  )}
-                  <hr className="my-1" />
-                  <button
-                    onClick={logout}
-                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  >
-                    🚪 Déconnexion
-                  </button>
-                </div>
+                    {/* Menu */}
+                    <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl py-2 w-52 md:w-56 z-50">
+                      <div className="px-4 py-2 border-b">
+                        <p className="text-sm font-semibold text-gray-800 truncate">
+                          {user.full_name}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {user.email}
+                        </p>
+                      </div>
+
+                      <Link
+                        to="/profile"
+                        onClick={() => setShowMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        👤 Mon profil
+                      </Link>
+                      <Link
+                        to="/orders"
+                        onClick={() => setShowMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        📦 Mes commandes
+                      </Link>
+                      <Link
+                        to="/favorites"
+                        onClick={() => setShowMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        ❤️ Mes favoris
+                      </Link>
+                      {(user.role === 'seller' ||
+                        user.role === 'admin' ||
+                        user.role === 'super_admin') && (
+                        <Link
+                          to="/seller"
+                          onClick={() => setShowMenu(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          🏪 Ma boutique
+                        </Link>
+                      )}
+                      <hr className="my-1" />
+                      <button
+                        onClick={() => {
+                          setShowMenu(false)
+                          logout()
+                        }}
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        🚪 Déconnexion
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <Link
