@@ -10,6 +10,7 @@ import Register from './pages/Register'
 import Profile from './pages/Profile'
 import Favorites from './pages/Favorites'
 import Orders from './pages/Orders'
+import BecomeSeller from './pages/BecomeSeller'
 import SellerDashboard from './pages/seller/SellerDashboard'
 import SellerProducts from './pages/seller/SellerProducts'
 import SellerOrders from './pages/seller/SellerOrders'
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/become-seller" element={<BecomeSeller />} />
 
           {/* Client */}
           <Route path="/checkout" element={<Checkout />} />

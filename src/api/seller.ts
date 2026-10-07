@@ -97,7 +97,7 @@ export async function deleteProduct(id: number): Promise<boolean> {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ✅ CRÉER UN PRODUIT
+// CRÉER UN PRODUIT
 // ═══════════════════════════════════════════════════════════
 export async function createProduct(data: {
   name: string
@@ -128,7 +128,7 @@ export async function createProduct(data: {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ✅ UPLOAD D'IMAGE PRODUIT
+// UPLOAD D'IMAGE PRODUIT
 // ═══════════════════════════════════════════════════════════
 export async function uploadProductImage(file: File): Promise<{
   success: boolean
@@ -171,5 +171,34 @@ export async function getSellerOrders(): Promise<any[]> {
     return res.data.data || []
   } catch {
     return []
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ✅ DEVENIR VENDEUR
+// ═══════════════════════════════════════════════════════════
+export async function becomeSeller(data: {
+  shop_name: string
+  description?: string
+  country_code?: string
+  city?: string
+  whatsapp_number?: string
+}): Promise<{
+  success: boolean
+  message?: string
+  data?: any
+}> {
+  try {
+    const res = await api.post('/auth/become-seller', data)
+    return {
+      success: true,
+      message: res.data.message,
+      data: res.data.data,
+    }
+  } catch (e: any) {
+    return {
+      success: false,
+      message: e.response?.data?.message || 'Erreur',
+    }
   }
 }
